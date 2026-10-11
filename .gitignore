@@ -9,12 +9,6 @@ wheels/
 # Virtual environments
 .venv
 
-#rust generated file
-target/
-*.so
-*.pyd
-
-
 #macOS
 .DS_Store
 

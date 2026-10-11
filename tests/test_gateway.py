@@ -1,4 +1,4 @@
-"""Tests for Aemilius Agent gateway (provider calls + tool use loop)."""
+"""Tests for Zetelton gateway (provider calls + tool use loop)."""
 
 import tempfile
 import unittest

@@ -1,6 +1,6 @@
-# Contributing to Aemilius Agent
+# Contributing to Zetelton
 
-Thank you for contributing to Aemilius Agent. The project is in pre-alpha, so focused changes, regression tests, provider compatibility reports, and documentation improvements are especially useful.
+Thank you for contributing to Zetelton. The project is in pre-alpha, so focused changes, regression tests, provider compatibility reports, and documentation improvements are especially useful.
 
 ## Development setup
 
@@ -11,8 +11,8 @@ Requirements:
 - Ollama for local-provider work, or an OpenAI-compatible API key for external-provider work.
 
 ```bash
-git clone https://github.com/vznd3v/Aemilius-agent.git
-cd Aemilius-agent
+git clone https://github.com/vznd3v/Zetelton-agent.git
+cd Zetelton-agent
 uv sync
 ```
 
@@ -27,7 +27,7 @@ Never commit `.env`, API keys, tokens, or generated credentials. The repository 
 ## Running the project
 
 ```bash
-uv run aemilius-agent
+uv run zetelton
 ```
 
 Provider selection and model names are stored in `src/agent/config/config.json`. Keep provider-specific behavior in the gateway; tools should not depend on Ollama, OpenRouter, or another provider.

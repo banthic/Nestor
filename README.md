@@ -1,18 +1,18 @@
 <div align="right">
-   <img src="./Design%20sans%20titre%20(3).png" alt="Logo Aemilius Agent" width="72" style="border-radius: 10px;">
+   <img src="./Clarity.png" alt="Logo Zetelton" width="72" style="border-radius: 10px;">
 </div>
 
-# Aemilius Agent
+# Zetelton
 
-![banner](./Gemini_Generated_Image_gj2u77gj2u77gj2u.jpeg)
+![banner](%5Bt%C3%976s%5D_%5B75caebef-f2f2-4a20-8a92-d7d1c80db737%5D_2026-10-05_00-37-29.svg)
 
 > **A simple, customizable base for building your own terminal agent.**
 
-[![Version](https://img.shields.io/badge/version-pre--alpha_v0.0.1-yellow.svg)](https://github.com/vznd3v/Aemilius-agent)
+[![Version](https://img.shields.io/badge/version-pre--alpha_v0.0.1-yellow.svg)](https://github.com/vznd3v/Zetelton-agent)
 [![Python](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-**Aemilius Agent** is a minimal Python agent base designed to be customized. It connects an LLM provider to a set of tools and presents the result through a Rich-based interactive CLI. Each layer is small and separated, so you can replace the provider, add tools, or restyle the interface without touching the rest. Out of the box, it ships as a codebase exploration assistant with filesystem tools.
+**Zetelton** is a minimal Python agent base designed to be customized. It connects an LLM provider to a set of tools and presents the result through a Rich-based interactive CLI. Each layer is small and separated, so you can replace the provider, add tools, or restyle the interface without touching the rest. Out of the box, it ships as a codebase exploration assistant with filesystem tools.
 
 ## Features
 
@@ -31,7 +31,7 @@
 The project follows a simple, layered architecture. Each directory has a single responsibility, and dependencies flow in one direction only:
 
 ```text
-Aemilius-agent/
+Zetelton-agent/
 ├── src/agent/
 │   ├── cli/                # Terminal interface, Markdown renderer, prompt completion
 │   ├── config/             # Provider and model configuration (config.json)
@@ -60,7 +60,7 @@ Because each layer is isolated, you can fork this base and customize one layer a
 
 ## Customization
 
-Aemilius Agent is meant to be a starting point for your own agent. The common customization points are:
+Zetelton is meant to be a starting point for your own agent. The common customization points are:
 
 ### Add a tool
 
@@ -94,12 +94,51 @@ All presentation code lives in `src/agent/cli/` (Markdown rendering, prompt comp
 ### Installation
 
 ```bash
-git clone https://github.com/vznd3v/Aemilius-agent.git
-cd Aemilius-agent
+git clone https://github.com/vznd3v/Zetelton-agent.git
+cd Zetelton-agent
 uv sync
 ```
 
-The package uses Maturin as its build backend because the repository still contains an experimental Rust module. The current CLI, gateway, and tools are implemented in Python.
+`uv sync` installs the pure-Python package, so no Rust toolchain is required.
+
+### Scaffold a new agent
+
+`zetelton-init` (a separate project) generates a ready-to-run project from this
+base: it copies the bare Python package, writes the provider configuration, and
+keeps only the tools you select (`listfiles`, `readfile`, `where`; `quit` is
+always included). No RAG, no web tool, and no persistent memory are added.
+
+Run it once, without cloning:
+
+```bash
+uvx zetelton-init
+```
+
+It asks a few basic questions (project name, package, provider, model, tools).
+For scripts and CI, skip the prompts with `-y` and pass answers as flags:
+
+```bash
+uvx zetelton-init ./my-agent \
+  --name my-agent \
+  --provider local \
+  --model qwen3:4b \
+  --tools listfiles,where \
+  -y
+```
+
+Flags:
+
+- `--name`: project and distribution name.
+- `--package`: Python import package name (default: derived from `--name`).
+- `--provider`: `local` (Ollama) or `external` (OpenAI-compatible API).
+- `--model`: model name for the selected provider.
+- `--base-url`: base URL for the external provider.
+- `--api-key`: API key written to `.env` for the external provider.
+- `--tools` (alias `--features`): comma-separated tools to include.
+- `--force`: write into a non-empty directory.
+
+The generated project is a standalone, pure-Python package: `cd` into it, run
+`uv sync`, then `uv run <name>`.
 
 ### Provider configuration
 
@@ -123,15 +162,15 @@ ollama serve
 Start the CLI with:
 
 ```bash
-uv run aemilius-agent
+uv run zetelton
 ```
 
 ### Examples
 
 ```text
-Aemilius > list the files in /path/to/project
-Aemilius > read src/agent/main.py
-Aemilius > what is inside @src/agent/gateway/gateway.py
+Zetelton > list the files in /path/to/project
+Zetelton > read src/agent/main.py
+Zetelton > what is inside @src/agent/gateway/gateway.py
 ```
 
 Type `@` followed by a path fragment to autocomplete files and directories from the current working directory.
@@ -158,3 +197,7 @@ The project is in active **pre-alpha (`v0.0.1`)**. Bug reports, provider compati
 ## License
 
 Distributed under the MIT License. See `LICENSE` for more information.
+
+---
+
+<sub>dev by Zetelton Labs by Niceware</sub>

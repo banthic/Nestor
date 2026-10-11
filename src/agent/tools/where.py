@@ -1,7 +1,5 @@
-import subprocess
 import platform
-
-
+import subprocess
 
 os_type = platform.system().lower()
 

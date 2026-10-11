@@ -1,6 +1,6 @@
 # Project notes
 
-**Vision**: Aemilius Agent is a customizable agent base with a simple, separated architecture (CLI / Gateway / Tools / Config). The codebase-exploration tools shipped today are the default example setup — the goal is to make each layer easy to replace or extend.
+**Vision**: Zetelton is a customizable agent base with a simple, separated architecture (CLI / Gateway / Tools / Config). The codebase-exploration tools shipped today are the default example setup — the goal is to make each layer easy to replace or extend.
 
 ## completed
 
@@ -14,6 +14,24 @@
 - [x] add the readfiles tools
 
 - [x] best cli  for chatting (adding a markdown engine and a stats panel, and a completer for @ a file or folder)
+
+- [x] add a `zetelton-init` scaffolder that generates a ready-to-run agent project
+- [x] drop the experimental Rust module and build as a pure-Python wheel (hatchling)
+
+## zetelton-init
+
+`zetelton-init` lives in its own project (separate repo) and creates a
+ready-to-run Zetelton agent: it copies the base `agent/` package, writes the
+provider config, and keeps only the selected tools (`listfiles`, `readfile`,
+`where`; `quit` always included). No RAG, no web, no persistent memory.
+
+Run it without cloning:
+
+```bash
+uvx zetelton-init
+```
+
+`-y` / `--no-input` skips the prompts and uses the flags (or defaults).
 
 ## what next
 

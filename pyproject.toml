@@ -1,5 +1,5 @@
 [project]
-name = "aemilius-agent"
+name = "zetelton-agent"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -17,18 +17,14 @@ dependencies = [
 ]
 
 [project.scripts]
-aemilius-agent = "agent.main:main"
+zetelton = "agent.main:main"
 
 [build-system]
-# On remplace uv_build par maturin pour compiler le Rust
-requires = ["maturin>=1.5,<2.0"]
-build-backend = "maturin"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
-[tool.maturin]
-# Indique à maturin que la racine des dossiers Python est 'src'
-python-source = "src"
-# Le module Rust compilé sera injecté directement dans le dossier 'agent'
-module-name = "agent._core"
+[tool.hatch.build.targets.wheel]
+packages = ["src/agent"]
 
 [dependency-groups]
 dev = [

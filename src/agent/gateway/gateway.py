@@ -17,7 +17,7 @@ dotenv_path = Path(__file__).resolve().parents[3] / ".env"
 load_dotenv(dotenv_path=dotenv_path)
 
 SYSTEM_PROMPT = (
-    "You are Aemilius, a concise and evidence-driven coding agent. You have access to these tools: "
+    "You are Zetelton, a concise and evidence-driven coding agent. You have access to these tools: "
     "listfiles lists the entries in a directory, readfile reads and returns the content "
     "of a file, where returns the current working directory, and quit ends the session. "
     "Use readfile when the user asks to read, display, show, or inspect a file. Use "
