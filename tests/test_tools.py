@@ -1,4 +1,4 @@
-"""Tests for Zetelton tools registry and dispatch."""
+"""Tests for Nestor tools registry and dispatch."""
 
 import tempfile
 import unittest
@@ -46,9 +46,9 @@ class TestTools(unittest.TestCase):
     def test_read_file_returns_file_content(self):
         with tempfile.TemporaryDirectory() as tmp:
             file_path = Path(tmp) / "hello.txt"
-            file_path.write_text("Hello, Zetelton!\n")
+            file_path.write_text("Hello, Nestor!\n")
 
-            self.assertEqual(_read_file(str(file_path)), "Hello, Zetelton!\n")
+            self.assertEqual(_read_file(str(file_path)), "Hello, Nestor!\n")
 
     def test_execute_tool_reads_file_with_spaces_in_path(self):
         with tempfile.TemporaryDirectory() as tmp:
