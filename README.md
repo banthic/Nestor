@@ -1,10 +1,10 @@
 <div align="right">
-   <img src="./Clarity.png" alt="Logo Nestor" width="72" style="border-radius: 10px;">
+   <img src="./2.png" alt="Logo Nestor" width="72" style="border-radius: 10px;">
 </div>
 
 # Nestor
 
-![banner](%5Bt%C3%976s%5D_%5B75caebef-f2f2-4a20-8a92-d7d1c80db737%5D_2026-10-05_00-37-29.svg)
+![banner](banner.png)
 
 > **Banthic Labs' AI-powered community assistant, built on Zetelton.**
 
