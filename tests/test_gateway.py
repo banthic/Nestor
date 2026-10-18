@@ -1,14 +1,15 @@
-"""Tests for Zetelton gateway (provider calls + tool use loop)."""
+"""Tests for Nestor gateway (provider calls + tool use loop)."""
 
+import json
 import tempfile
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
 
-import agent.gateway.gateway as gateway_module
-from agent.gateway import Gateway
-from agent.gateway.gateway import SYSTEM_PROMPT, ModelResponse, StreamChunk
+import agent.gateway.providers as providers_module
+from agent.gateway import SYSTEM_PROMPT, Gateway, ModelResponse, StreamChunk
+from agent.gateway.messages import assistant_message
 from agent.tools import QuitRequested, get_tools
 
 
@@ -29,7 +30,7 @@ class TestGateway(unittest.TestCase):
         self.gw.default_provider = "local_ollama"
         self.gw.ollama_model = "test-model"
 
-    @patch.object(gateway_module.ollama, "chat", return_value=_ollama_message("Hello there"))
+    @patch.object(providers_module.ollama, "chat", return_value=_ollama_message("Hello there"))
     def test_direct_reply(self, mock_chat):
         response = self.gw.generate_text("Hi")
         self.assertIsInstance(response, ModelResponse)
@@ -37,7 +38,7 @@ class TestGateway(unittest.TestCase):
         self.assertEqual(response.thinking, "")
 
     @patch.object(
-        gateway_module.ollama,
+        providers_module.ollama,
         "chat",
         return_value=_ollama_message("Final answer", thinking="Let me think"),
     )
@@ -47,7 +48,7 @@ class TestGateway(unittest.TestCase):
         self.assertEqual(response.content, "Final answer")
 
     @patch.object(
-        gateway_module.ollama,
+        providers_module.ollama,
         "chat",
         return_value=_ollama_message("Ok"),
     )
@@ -63,7 +64,7 @@ class TestGateway(unittest.TestCase):
         self.assertIn("Never invent source code", SYSTEM_PROMPT)
 
     @patch.object(
-        gateway_module.ollama,
+        providers_module.ollama,
         "chat",
         return_value=_ollama_message("Bonjour !"),
     )
@@ -72,7 +73,7 @@ class TestGateway(unittest.TestCase):
         self.assertIn("tools", mock_chat.call_args.kwargs)
 
     @patch.object(
-        gateway_module.ollama,
+        providers_module.ollama,
         "chat",
         return_value=_ollama_message("Ok"),
     )
@@ -81,7 +82,7 @@ class TestGateway(unittest.TestCase):
         self.assertIn("tools", mock_chat.call_args.kwargs)
 
     @patch.object(
-        gateway_module.ollama,
+        providers_module.ollama,
         "chat",
         return_value=_ollama_message("Ok"),
     )
@@ -90,7 +91,7 @@ class TestGateway(unittest.TestCase):
         self.assertIn("tools", mock_chat.call_args.kwargs)
 
     @patch.object(
-        gateway_module.ollama,
+        providers_module.ollama,
         "chat",
         return_value=_ollama_message("Ok"),
     )
@@ -99,7 +100,7 @@ class TestGateway(unittest.TestCase):
         self.assertIn("tools", mock_chat.call_args.kwargs)
 
     @patch.object(
-        gateway_module.ollama,
+        providers_module.ollama,
         "chat",
         side_effect=[[_ollama_message(tool_calls=[
             {"function": {"name": "quit", "arguments": {}}}
@@ -117,7 +118,7 @@ class TestGateway(unittest.TestCase):
             ])
             final_response = _ollama_message("Here is the listing!")
             with patch.object(
-                gateway_module.ollama,
+                providers_module.ollama,
                 "chat",
                 side_effect=[tool_response, final_response],
             ) as mock_chat:
@@ -136,7 +137,7 @@ class TestGateway(unittest.TestCase):
         ])
         final_response = _ollama_message("I ran into a problem.")
         with patch.object(
-            gateway_module.ollama,
+            providers_module.ollama,
             "chat",
             side_effect=[tool_response, final_response],
         ) as mock_chat:
@@ -150,7 +151,7 @@ class TestGateway(unittest.TestCase):
         ))
 
     @patch.object(
-        gateway_module.ollama,
+        providers_module.ollama,
         "chat",
         side_effect=lambda **kwargs: _ollama_message(tool_calls=[
             {"function": {"name": "listfiles", "arguments": {"path": "/"}}}
@@ -185,12 +186,88 @@ class TestGateway(unittest.TestCase):
         self.gw.default_provider = "external_api_openai_compatible"
         self.gw.openai_client = fake_client
 
-        content, thinking, tool_calls = self.gw._call_openai([], None)
+        content, thinking, tool_calls = providers_module.call_openai(fake_client, "test-model", [], None)
         self.assertEqual(content, "call me")
         self.assertEqual(thinking, "reasoning here")
         self.assertEqual(tool_calls[0]["id"], "call_123")
         self.assertEqual(tool_calls[0]["name"], "listfiles")
         self.assertEqual(tool_calls[0]["arguments"], {"path": "/"})
+
+    def test_openai_tool_calls_capture_thought_signature(self):
+        message = SimpleNamespace(
+            content="call me",
+            tool_calls=[
+                SimpleNamespace(
+                    id="call_123",
+                    function=SimpleNamespace(name="listfiles", arguments='{"path": "/"}'),
+                    extra_content={"google": {"thought_signature": "SIG-1"}},
+                )
+            ],
+        )
+        response = SimpleNamespace(choices=[SimpleNamespace(message=message)])
+        self.gw.default_provider = "external_api_openai_compatible"
+        fake_client = SimpleNamespace(
+            chat=SimpleNamespace(completions=SimpleNamespace(create=lambda **kwargs: response))
+        )
+
+        _content, _thinking, tool_calls = providers_module.call_openai(fake_client, "test-model", [], None)
+
+        self.assertEqual(tool_calls[0]["extra_content"], {"google": {"thought_signature": "SIG-1"}})
+
+    def test_assistant_message_replays_thought_signature(self):
+        message = assistant_message("", [
+            {
+                "id": "call_1",
+                "name": "listfiles",
+                "arguments": {"path": "/"},
+                "extra_content": {"google": {"thought_signature": "SIG-1"}},
+            }
+        ], "external_api_openai_compatible")
+        tool_call = message["tool_calls"][0]
+        self.assertEqual(tool_call["extra_content"], {"google": {"thought_signature": "SIG-1"}})
+
+    def test_assistant_message_omits_extra_content_when_absent(self):
+        message = assistant_message("", [
+            {"id": "call_1", "name": "listfiles", "arguments": {"path": "/"}}
+        ], "external_api_openai_compatible")
+        self.assertNotIn("extra_content", message["tool_calls"][0])
+
+    def test_thought_signature_survives_tool_loop(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            (Path(tmp) / "report.txt").touch()
+            signature = {"google": {"thought_signature": "SIG-ROUNDTRIP"}}
+            first_turn = SimpleNamespace(choices=[SimpleNamespace(message=SimpleNamespace(
+                content=None,
+                tool_calls=[SimpleNamespace(
+                    id="call_1",
+                    function=SimpleNamespace(name="listfiles", arguments=json.dumps({"path": tmp})),
+                    extra_content=signature,
+                )],
+            ))])
+            second_turn = SimpleNamespace(choices=[SimpleNamespace(message=SimpleNamespace(
+                content="Done",
+                tool_calls=None,
+            ))])
+            recorded = []
+
+            def fake_create(**kwargs):
+                recorded.append(kwargs["messages"])
+                return first_turn if len(recorded) == 1 else second_turn
+
+            self.gw.default_provider = "external_api_openai_compatible"
+            self.gw.openai_client = SimpleNamespace(
+                chat=SimpleNamespace(completions=SimpleNamespace(create=fake_create))
+            )
+
+            response = self.gw.generate_text("List the files")
+
+        self.assertEqual(response.content, "Done")
+        assistant_calls = [
+            msg for msg in recorded[1]
+            if msg["role"] == "assistant" and msg.get("tool_calls")
+        ]
+        self.assertEqual(assistant_calls[0]["tool_calls"][0]["extra_content"], signature)
+
 
 
 class TestStream(unittest.TestCase):
@@ -200,7 +277,7 @@ class TestStream(unittest.TestCase):
         self.gw.ollama_model = "test-model"
 
     @patch.object(
-        gateway_module.ollama,
+        providers_module.ollama,
         "chat",
         return_value=[
             _ollama_message(content="Hel"),
@@ -216,7 +293,7 @@ class TestStream(unittest.TestCase):
         ])
 
     @patch.object(
-        gateway_module.ollama,
+        providers_module.ollama,
         "chat",
         return_value=[
             _ollama_message(thinking="I think"),
@@ -269,7 +346,7 @@ class TestStream(unittest.TestCase):
         self.gw.default_provider = "external_api_openai_compatible"
         self.gw.openai_client = fake_client
 
-        stream = self.gw._stream_openai([], None)
+        stream = providers_module.stream_openai(fake_client, "test-model", [], None)
         try:
             while True:
                 next(stream)
@@ -282,13 +359,44 @@ class TestStream(unittest.TestCase):
             "arguments": {"path": "/tmp/chatbot.py"},
         }])
 
+    def test_openai_stream_captures_thought_signature(self):
+        chunks = [
+            SimpleNamespace(choices=[SimpleNamespace(delta=SimpleNamespace(
+                content=None,
+                thinking=None,
+                tool_calls=[SimpleNamespace(
+                    index=None,
+                    id="call_1",
+                    extra_content={"google": {"thought_signature": "SIG-STREAM"}},
+                    function=SimpleNamespace(name="listfiles", arguments='{"path": "/"}'),
+                )],
+            ))]),
+        ]
+        self.gw.default_provider = "external_api_openai_compatible"
+        fake_client = SimpleNamespace(
+            chat=SimpleNamespace(completions=SimpleNamespace(create=lambda **kwargs: chunks))
+        )
+
+        stream = providers_module.stream_openai(fake_client, "test-model", [], None)
+        try:
+            while True:
+                next(stream)
+        except StopIteration as result:
+            _content, _thinking, tool_calls = result.value
+
+        self.assertEqual(tool_calls[0]["name"], "listfiles")
+        self.assertEqual(
+            tool_calls[0]["extra_content"],
+            {"google": {"thought_signature": "SIG-STREAM"}},
+        )
+
     def test_stream_provider_rate_limit_is_returned_as_error_chunk(self):
         error = RuntimeError("upstream provider is overloaded")
         error.status_code = 429
         self.gw.default_provider = "local_ollama"
-        self.gw._stream_ollama = lambda messages, tools: (_ for _ in ()).throw(error)
 
-        chunks = list(self.gw.stream_text("Hi"))
+        with patch.object(providers_module, "stream_ollama", side_effect=error):
+            chunks = list(self.gw.stream_text("Hi"))
 
         self.assertEqual(chunks, [StreamChunk("status", "Thinking"), StreamChunk(
             "error",
@@ -305,7 +413,7 @@ class TestStream(unittest.TestCase):
             ]
             second_turn = [_ollama_message(content="Here is the list.")]
             with patch.object(
-                gateway_module.ollama,
+                providers_module.ollama,
                 "chat",
                 side_effect=[first_turn, second_turn],
             ) as mock_chat:
@@ -318,7 +426,7 @@ class TestStream(unittest.TestCase):
         self.assertEqual(mock_chat.call_count, 2)
 
     @patch.object(
-        gateway_module.ollama,
+        providers_module.ollama,
         "chat",
         side_effect=lambda **kwargs: [{"message": {"role": "assistant", "content": "", "thinking": "", "tool_calls": [
             {"function": {"name": "broken_tool", "arguments": {}}}

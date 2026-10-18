@@ -1,6 +1,6 @@
 # Project notes
 
-**Vision**: Zetelton is a customizable agent base with a simple, separated architecture (CLI / Gateway / Tools / Config). The codebase-exploration tools shipped today are the default example setup — the goal is to make each layer easy to replace or extend.
+**Vision**: Nestor is Banthic Labs' AI-powered community assistant, built on Zetelton. Designed to support Discord helpers and moderators, it combines intelligent assistance, contextual knowledge retrieval, and agent-powered tools to make community management simpler, smarter, and more efficient. It keeps a simple, separated architecture (CLI / Gateway / Tools / Config).
 
 ## completed
 

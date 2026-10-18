@@ -1,7 +1,7 @@
 [project]
-name = "zetelton-agent"
+name = "nestor"
 version = "0.1.0"
-description = "Add your description here"
+description = "Banthic Labs' AI-powered community assistant, built on Zetelton."
 readme = "README.md"
 authors = [
     { name = "vzn.d3v", email = "emiliendaix@hotmail.com" }
@@ -17,7 +17,7 @@ dependencies = [
 ]
 
 [project.scripts]
-zetelton = "agent.main:main"
+nestor = "agent.main:main"
 
 [build-system]
 requires = ["hatchling"]

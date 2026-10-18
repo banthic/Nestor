@@ -4,7 +4,7 @@ from pathlib import Path
 from rich.console import Console
 from rich.text import Text
 
-"""Terminal layout components for the Zetelton CLI."""
+"""Terminal layout components for the Nestor CLI."""
 
 CONFIG_PATH = Path(__file__).resolve().parents[2] / "config" / "config.json"
 SEPARATOR = "─"
@@ -35,7 +35,7 @@ def get_panel(provider: str | None = None, model: str | None = None) -> Text:
     model = model or configured_model
 
     content = Text()
-    content.append("Zetelton\n", style="bold bright_cyan")
+    content.append("Nestor\n", style="bold bright_cyan")
     content.append(f"{provider} · {model}\n", style="bold bright_magenta")
     content.append(f"{Path.cwd()}", style="bright_green")
     return content
@@ -67,7 +67,7 @@ def get_footer(
     footer.append(" " * 8, style="dim white")
     footer.append(f"{provider} · {model}", style="dim bright_cyan")
     footer.append(usage_text, style="dim bright_magenta")
-    footer.append("   dev by Zetelton Labs by Niceware", style="dim")
+    footer.append("   dev by Banthic Labs", style="dim")
     return footer
 
 

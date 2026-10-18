@@ -1,26 +1,27 @@
 <div align="right">
-   <img src="./Clarity.png" alt="Logo Zetelton" width="72" style="border-radius: 10px;">
+   <img src="./2.png" alt="Logo Nestor" width="72" style="border-radius: 10px;">
 </div>
 
-# Zetelton
+# Nestor
 
-![banner](%5Bt%C3%976s%5D_%5B75caebef-f2f2-4a20-8a92-d7d1c80db737%5D_2026-10-05_00-37-29.svg)
+![banner](banner.png)
 
-> **A simple, customizable base for building your own terminal agent.**
+> **Banthic Labs' AI-powered community assistant, built on Zetelton.**
 
-[![Version](https://img.shields.io/badge/version-pre--alpha_v0.0.1-yellow.svg)](https://github.com/vznd3v/Zetelton-agent)
+[![Version](https://img.shields.io/badge/version-pre--alpha_v0.0.1-yellow.svg)](https://github.com/banthic/Nestor)
 [![Python](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-**Zetelton** is a minimal Python agent base designed to be customized. It connects an LLM provider to a set of tools and presents the result through a Rich-based interactive CLI. Each layer is small and separated, so you can replace the provider, add tools, or restyle the interface without touching the rest. Out of the box, it ships as a codebase exploration assistant with filesystem tools.
+**Nestor** is Banthic Labs' AI-powered community assistant, built on Zetelton. Designed to support Discord helpers and moderators, it combines intelligent assistance, contextual knowledge retrieval, and agent-powered tools to make community management simpler, smarter, and more efficient.
 
 ## Features
 
-- **Customizable agent base**: separated layers (CLI, gateway, tools, config) you can extend or replace independently.
-- **Codebase exploration**: list directories and read file contents through the built-in example tools.
+- **Community assistant**: supports Discord helpers and moderators with intelligent, evidence-driven answers.
+- **Intelligent assistance**: separated layers (CLI, gateway, tools, config) you can extend or replace independently.
+- **Contextual knowledge retrieval**: inspect and read project files through the built-in tools.
+- **Agent-powered tools**: list directories, read files, and resolve the working directory from model-generated tool calls.
 - **Multi-provider gateway**: use local Ollama models or OpenAI-compatible APIs such as OpenRouter.
 - **Streaming responses**: stream text, reasoning, tool results, and provider errors through one gateway interface.
-- **Tool calling**: execute `listfiles`, `readfile`, and `quit` from model-generated tool calls.
 - **Terminal Markdown**: render agent responses with Rich, including syntax-highlighted code blocks.
 - **Token statistics**: show provider usage when available and a clearly marked estimate otherwise.
 - **File references**: autocomplete files and directories after typing `@` in the prompt.
@@ -31,7 +32,7 @@
 The project follows a simple, layered architecture. Each directory has a single responsibility, and dependencies flow in one direction only:
 
 ```text
-Zetelton-agent/
+Nestor/
 ├── src/agent/
 │   ├── cli/                # Terminal interface, Markdown renderer, prompt completion
 │   ├── config/             # Provider and model configuration (config.json)
@@ -56,11 +57,11 @@ CLI ──> Gateway ──> LLM provider
 - **Tools** are small provider-independent functions exposed to the model. They know nothing about the CLI or the gateway.
 - **Config** is a plain JSON file selecting the provider and model.
 
-Because each layer is isolated, you can fork this base and customize one layer at a time without breaking the others.
+Because each layer is isolated, you can customize one layer at a time without breaking the others.
 
 ## Customization
 
-Zetelton is meant to be a starting point for your own agent. The common customization points are:
+Nestor is built on the Zetelton base, so the common customization points are:
 
 ### Add a tool
 
@@ -94,8 +95,8 @@ All presentation code lives in `src/agent/cli/` (Markdown rendering, prompt comp
 ### Installation
 
 ```bash
-git clone https://github.com/vznd3v/Zetelton-agent.git
-cd Zetelton-agent
+git clone https://github.com/banthic/Nestor.git
+cd Nestor
 uv sync
 ```
 
@@ -103,10 +104,11 @@ uv sync
 
 ### Scaffold a new agent
 
-`zetelton-init` (a separate project) generates a ready-to-run project from this
-base: it copies the bare Python package, writes the provider configuration, and
-keeps only the tools you select (`listfiles`, `readfile`, `where`; `quit` is
-always included). No RAG, no web tool, and no persistent memory are added.
+`zetelton-init` (a separate project) generates a ready-to-run project from the
+Zetelton base: it copies the bare Python package, writes the provider
+configuration, and keeps only the tools you select (`listfiles`, `readfile`,
+`where`; `quit` is always included). No RAG, no web tool, and no persistent
+memory are added.
 
 Run it once, without cloning:
 
@@ -162,15 +164,15 @@ ollama serve
 Start the CLI with:
 
 ```bash
-uv run zetelton
+uv run nestor
 ```
 
 ### Examples
 
 ```text
-Zetelton > list the files in /path/to/project
-Zetelton > read src/agent/main.py
-Zetelton > what is inside @src/agent/gateway/gateway.py
+Nestor > list the files in /path/to/project
+Nestor > read src/agent/main.py
+Nestor > what is inside @src/agent/gateway/gateway.py
 ```
 
 Type `@` followed by a path fragment to autocomplete files and directories from the current working directory.
@@ -187,6 +189,7 @@ Tool calls are exposed when the request concerns files or directories. The gatew
 
 - [ ] Add architecture and dependency graph tools.
 - [ ] Add flowchart generation and a graphical flowchart view.
+- [ ] Add contextual knowledge retrieval for community support.
 - [ ] Add a CLI splash screen.
 - [ ] Add a `/provider` command for changing providers during a session.
 
@@ -200,4 +203,4 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 ---
 
-<sub>dev by Zetelton Labs by Niceware</sub>
+<sub>dev by Banthic Labs</sub>

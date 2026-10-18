@@ -1,4 +1,4 @@
-"""Tests for Zetelton CLI interface components."""
+"""Tests for Nestor CLI interface components."""
 
 import unittest
 
@@ -25,7 +25,7 @@ class TestInterface(unittest.TestCase):
         render_panel(console)
         output = console.export_text()
 
-        self.assertIn("Zetelton", output)
+        self.assertIn("Nestor", output)
         self.assertNotIn("emiliendaix@gmail.com", output)
         self.assertNotIn("Starter Quota", output)
         self.assertNotIn("High", output)
