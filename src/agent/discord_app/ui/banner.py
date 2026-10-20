@@ -1,10 +1,14 @@
 """Banner message posted in the chatbot channel, inspired by the CLI panel."""
 
+from pathlib import Path
+
 import discord
 from discord import ui
 
 from ...gateway.config import load_config
 from ..agent_bridge import DISCORD_TOOLS
+
+BANNER_PATH = Path(__file__).resolve().parents[4] / "banner.png"
 
 
 def _provider_label() -> str:
@@ -27,7 +31,7 @@ def _tools_label() -> str:
     return ", ".join(names)
 
 
-def build_banner(status: str = "ready") -> ui.LayoutView:
+def build_banner() -> ui.LayoutView:
     """Build the Components V2 banner shown at the top of the chatbot channel."""
     view = ui.LayoutView(timeout=None)
     provider_label = _provider_label()
@@ -39,9 +43,10 @@ def build_banner(status: str = "ready") -> ui.LayoutView:
                 "**Your community assistant.**\n"
                 "This channel is set up as the Nestor chatbot."
             ),
+            ui.MediaGallery(discord.MediaGalleryItem(media=discord.File(BANNER_PATH))),
             ui.Separator(),
             ui.TextDisplay(
-                f"> **Status** · {status}\n"
+                f"> **Status** · ready\n"
                 f"> **Provider** · {provider_label}\n"
                 f"> **Tools** · {tools_label}\n"
                 "> **Commands** · `/config` to change the chatbot channel"
@@ -56,4 +61,4 @@ def build_banner(status: str = "ready") -> ui.LayoutView:
 
 async def post_banner(channel: discord.abc.Messageable) -> discord.Message:
     """Post the banner message into a channel."""
-    return await channel.send(view=build_banner())
+    return await channel.send(view=build_banner(), files=[discord.File(BANNER_PATH)])
