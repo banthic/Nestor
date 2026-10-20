@@ -14,25 +14,36 @@ from . import providers
 from .config import load_config
 from .messages import assistant_message, build_messages, tool_result_message
 from .models import ModelResponse, StreamChunk
+from .prompts import SYSTEM_PROMPT
 
 LOCAL_PROVIDER = "local_ollama"
 EXTERNAL_PROVIDER = "external_api_openai_compatible"
 
 
 class Gateway:
-    def __init__(self, tools=None):
+    def __init__(self, tools=None, system_prompt=None, system_prompt_suffix=None):
         config = load_config()
         self.default_provider = config["default_provider"]
         self.ollama_model = config["provider"][LOCAL_PROVIDER]["model"]
         self.openai_model = config["provider"][EXTERNAL_PROVIDER].get("model")
         self.base_url = config["provider"][EXTERNAL_PROVIDER].get("base_url")
+        self.system_prompt = system_prompt or SYSTEM_PROMPT
+        self.system_prompt_suffix = system_prompt_suffix
         self.tools = list(tools or [])
         if self.openai_model and self.default_provider == EXTERNAL_PROVIDER:
             api_key = os.getenv("EXTERNAL_API_KEY") or os.getenv("OPENAI_API_KEY")
             self.openai_client = OpenAI(base_url=self.base_url, api_key=api_key)
 
+    def _build_messages(self, prompt, history):
+        return build_messages(
+            prompt,
+            history,
+            system_prompt=self.system_prompt,
+            system_prompt_suffix=self.system_prompt_suffix,
+        )
+
     def generate_text(self, prompt, history=None, tools=None, max_tool_iterations=10):
-        messages = build_messages(prompt, history)
+        messages = self._build_messages(prompt, history)
         active_tools, tool_schemas = self._resolve_tools(tools)
 
         for _ in range(max_tool_iterations):
@@ -49,7 +60,7 @@ class Gateway:
         return ModelResponse(content="Maximum tool iterations reached.", thinking="")
 
     def stream_text(self, prompt, history=None, tools=None, max_tool_iterations=10):
-        messages = build_messages(prompt, history)
+        messages = self._build_messages(prompt, history)
         active_tools, tool_schemas = self._resolve_tools(tools)
 
         for _ in range(max_tool_iterations):

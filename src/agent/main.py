@@ -1,8 +1,5 @@
-from .cli import run_cli
+from .discord_app import run_bot
 
 
 def main() -> None:
-   run_cli()
-    
-
-
+    run_bot()

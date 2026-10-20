@@ -10,7 +10,7 @@ from unittest.mock import patch
 import agent.gateway.providers as providers_module
 from agent.gateway import SYSTEM_PROMPT, Gateway, ModelResponse, StreamChunk
 from agent.gateway.messages import assistant_message
-from agent.tools import QuitRequested, get_tools
+from agent.tools import get_tools
 
 
 def _ollama_message(content="", tool_calls=None, thinking=""):
@@ -58,10 +58,10 @@ class TestGateway(unittest.TestCase):
         self.assertEqual(kwargs["messages"][0]["role"], "system")
         self.assertEqual(kwargs["messages"][0]["content"], SYSTEM_PROMPT)
 
-    def test_system_prompt_describes_readfile(self):
-        self.assertIn("readfile reads and returns the content", SYSTEM_PROMPT)
-        self.assertIn("MUST inspect the project first", SYSTEM_PROMPT)
-        self.assertIn("Never invent source code", SYSTEM_PROMPT)
+    def test_system_prompt_describes_rename_server(self):
+        self.assertIn("exactly one tool: rename_server", SYSTEM_PROMPT)
+        self.assertIn("explicitly asks to rename", SYSTEM_PROMPT)
+        self.assertIn("Do not invent tools", SYSTEM_PROMPT)
 
     @patch.object(
         providers_module.ollama,
@@ -78,16 +78,7 @@ class TestGateway(unittest.TestCase):
         return_value=_ollama_message("Ok"),
     )
     def test_tools_attached_when_keyword_present(self, mock_chat):
-        self.gw.generate_text("liste les fichiers du dossier /tmp")
-        self.assertIn("tools", mock_chat.call_args.kwargs)
-
-    @patch.object(
-        providers_module.ollama,
-        "chat",
-        return_value=_ollama_message("Ok"),
-    )
-    def test_tools_attached_when_prompt_mentions_file_name(self, mock_chat):
-        self.gw.generate_text("et dans chatbot.py y'a quoi")
+        self.gw.generate_text("renomme le serveur en Hive")
         self.assertIn("tools", mock_chat.call_args.kwargs)
 
     @patch.object(
@@ -96,38 +87,36 @@ class TestGateway(unittest.TestCase):
         return_value=_ollama_message("Ok"),
     )
     def test_tools_attached_when_tool_name_present(self, mock_chat):
-        self.gw.generate_text("quitte maintenant")
+        self.gw.generate_text("use rename_server")
         self.assertIn("tools", mock_chat.call_args.kwargs)
 
     @patch.object(
         providers_module.ollama,
         "chat",
         side_effect=[[_ollama_message(tool_calls=[
-            {"function": {"name": "quit", "arguments": {}}}
+            {"function": {"name": "rename_server", "arguments": {"name": "Hive"}}}
         ])]],
     )
-    def test_quit_tool_propagates_quit_requested(self, mock_chat):
-        with self.assertRaises(QuitRequested):
-            list(self.gw.stream_text("quitte maintenant"))
+    def test_rename_tool_runs(self, mock_chat):
+        chunks = list(self.gw.stream_text("renomme le serveur"))
+        self.assertTrue(any(chunk.type == "tool_call" for chunk in chunks))
 
     def test_tool_use_flow(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            (Path(tmp) / "report.txt").touch()
-            tool_response = _ollama_message(tool_calls=[
-                {"function": {"name": "listfiles", "arguments": {"path": tmp}}}
-            ])
-            final_response = _ollama_message("Here is the listing!")
-            with patch.object(
-                providers_module.ollama,
-                "chat",
-                side_effect=[tool_response, final_response],
-            ) as mock_chat:
-                response = self.gw.generate_text("List the files")
+        tool_response = _ollama_message(tool_calls=[
+            {"function": {"name": "rename_server", "arguments": {"name": "Hive"}}}
+        ])
+        final_response = _ollama_message("Renamed!")
+        with patch.object(
+            providers_module.ollama,
+            "chat",
+            side_effect=[tool_response, final_response],
+        ) as mock_chat:
+            response = self.gw.generate_text("Rename the server to Hive")
 
-        self.assertEqual(response.content, "Here is the listing!")
+        self.assertEqual(response.content, "Renamed!")
         called_messages = mock_chat.call_args_list[1].kwargs["messages"]
         self.assertTrue(any(
-            msg["role"] == "tool" and "report.txt" in msg["content"]
+            msg["role"] == "tool" and "not available" in msg["content"]
             for msg in called_messages
         ))
 

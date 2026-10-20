@@ -5,9 +5,12 @@ import json
 from .prompts import SYSTEM_PROMPT
 
 
-def build_messages(prompt, history=None, system_prompt=SYSTEM_PROMPT):
+def build_messages(prompt, history=None, system_prompt=SYSTEM_PROMPT, system_prompt_suffix=None):
     """Assemble the request: system prompt, prior turns, then the new prompt."""
-    messages = [{"role": "system", "content": system_prompt}]
+    content = system_prompt
+    if system_prompt_suffix:
+        content = f"{content}\n\n{system_prompt_suffix}"
+    messages = [{"role": "system", "content": content}]
     messages.extend(list(history or []))
     messages.append({"role": "user", "content": prompt})
     return messages

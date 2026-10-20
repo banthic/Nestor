@@ -1,19 +1,22 @@
-from .listfiles import listfiles
-from .quit import QuitRequested, quit
-from .readfiles import read_file
-from .where import where
+from .quit import QuitRequested
+from .rename_server import (
+    clear_rename_handler,
+    rename_server,
+    set_rename_handler,
+)
 
 __all__ = [
     "TOOLS",
     "QuitRequested",
+    "clear_rename_handler",
     "execute_tool",
     "get_tools",
-    "listfiles",
-    "quit",
+    "rename_server",
+    "set_rename_handler",
     "to_schemas",
 ]
 
-TOOLS = [listfiles, quit, read_file, where]
+TOOLS = [rename_server]
 
 
 def get_tools():

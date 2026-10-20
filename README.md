@@ -179,11 +179,11 @@ Type `@` followed by a path fragment to autocomplete files and directories from 
 
 ## Built-in tools
 
-- `listfiles`: list entries in a directory.
-- `readfile`: read and return the complete content of a file.
-- `quit`: stop the interactive session.
+- `rename_server`: rename the current Discord server. Only available when the tool is wired
+  to a Discord guild (via the bot); otherwise it reports that renaming is unavailable.
 
-Tool calls are exposed when the request concerns files or directories. The gateway normalizes streamed tool-call fragments from OpenAI-compatible providers before executing them.
+Tool calls are exposed when the request explicitly concerns renaming the server. The gateway
+normalizes streamed tool-call fragments from OpenAI-compatible providers before executing them.
 
 ## Roadmap
 
