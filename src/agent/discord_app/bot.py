@@ -53,7 +53,11 @@ class NestorBot(discord.Client):
 
         async with message.channel.typing():
             reply = await self.agent.reply(
-                message.channel.id, message.content, guild=message.guild
+                message.channel.id,
+                message.content,
+                guild=message.guild,
+                member=message.author,
+                channel=message.channel,
             )
 
         if not reply.content:

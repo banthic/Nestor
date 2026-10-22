@@ -179,11 +179,23 @@ Type `@` followed by a path fragment to autocomplete files and directories from 
 
 ## Built-in tools
 
-- `rename_server`: rename the current Discord server. Only available when the tool is wired
-  to a Discord guild (via the bot); otherwise it reports that renaming is unavailable.
+- `access`: check the requesting member's permission for a sensitive action. Backed by
+  `require_permission` in `src/agent/tools/access.py`; permission checks are also enforced
+  automatically before every action.
+- `confirm`: ask for confirmation before a sensitive or server-modifying action. It posts
+  an embed with **Confirm** and **Cancel** buttons (no selector).
+- `rename_server`: rename the current Discord server. Requires the **Manage Server**
+  permission; the action is refused otherwise.
+- `get_member_permissions`: show a member's Discord roles and permissions. Anyone can inspect
+  their own; inspecting another member requires **Manage Server**. Mentions, numeric IDs, and
+  names are resolved through Discord's API, not only from the local member cache.
+- `ask_user`: ask the user for missing information or choices instead of guessing. It shows a
+  selector when options are provided, or a text input for free-form answers, and waits for the
+  reply. Never use it for permission checks or confirmation.
 
-Tool calls are exposed when the request explicitly concerns renaming the server. The gateway
-normalizes streamed tool-call fragments from OpenAI-compatible providers before executing them.
+Every action that declares a required permission is checked before it runs. Tool calls are
+exposed when the request concerns a Discord action. The gateway normalizes streamed tool-call
+fragments from OpenAI-compatible providers before executing them.
 
 ## Roadmap
 
