@@ -58,10 +58,11 @@ class TestGateway(unittest.TestCase):
         self.assertEqual(kwargs["messages"][0]["role"], "system")
         self.assertEqual(kwargs["messages"][0]["content"], SYSTEM_PROMPT)
 
-    def test_system_prompt_describes_rename_server(self):
-        self.assertIn("exactly one tool: rename_server", SYSTEM_PROMPT)
-        self.assertIn("explicitly asks to rename", SYSTEM_PROMPT)
-        self.assertIn("Do not invent tools", SYSTEM_PROMPT)
+    def test_system_prompt_describes_nestor(self):
+        self.assertIn("Nestor", SYSTEM_PROMPT)
+        self.assertIn("Banthic Labs", SYSTEM_PROMPT)
+        self.assertIn("community management", SYSTEM_PROMPT)
+        self.assertIn("early development", SYSTEM_PROMPT)
 
     @patch.object(
         providers_module.ollama,

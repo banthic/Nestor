@@ -60,7 +60,7 @@ Two small utilities also live there: `extract_usage` (get the number of tokens) 
 This is the shortest file, almost only coordination:
 
 - it creates the provider's client;
-- it runs the **tool loop**;
+- it runs the **agent loop**;
 - it decides what to do according to the chosen provider;
 - it turns technical errors into readable messages.
 
@@ -71,28 +71,39 @@ It exposes two public methods:
 | `generate_text` | response all at once | a `ModelResponse` |
 | `stream_text` | response in pieces | a stream of `StreamChunk` |
 
-**Keep in mind:** the CLI only uses `stream_text`.
+### `loop.py` — per-request limits
+
+Tracks model rounds and tool calls, and creates clear stop messages when either budget is exhausted.
+
+**Keep in mind:** the CLI and Discord both use `stream_text`.
 
 ## The tool loop, in detail
 
 This is the heart of the Gateway. Here is the logic in plain language:
 
 ```
-Repeat at most 10 times:
+Repeat at most 12 action rounds and 40 tool calls for one user request:
     ask the AI for a response
     if the AI requests NO tool:
         → this is the final answer, we stop
     otherwise:
         record what the AI requested
         for each requested tool:
+            stop if finish_task was called
             execute the tool
             add the result to the conversation
         (and we start the loop again)
+After the action-round budget, make one final model call with tools disabled
+so it can summarize the results without starting more actions.
 ```
 
-- **Why a limit of 10?** To prevent a model from making a mistake and looping forever. After 10 turns, we stop for safety.
+- **Why two limits?** The round limit stops an endless model/tool cycle; the action limit also caps batches where a model requests many tools at once. Reaching the action-round limit reserves one final model call with tools disabled, so Nestor can still summarize what happened.
 - **Why feed the result back in?** Because the AI needs to "see" what the tool found in order to write its final answer.
+- **What does `finish_task` do?** It is a terminal tool: its result becomes the final answer and no more provider call is made.
+- **What if an action failed?** The tool error is fed back to the model. The Gateway also replaces any claimed success with a deterministic incomplete-result notice, so a final answer cannot report the run as successful after a detected tool failure.
 - **What if a tool fails?** The error is turned into text and sent back to the AI, which can react. The program does not crash.
+
+See [the agent loop guide](08-agent-loop.md) for the step-by-step behavior, budgets, finish rules, and current limitations.
 
 ## The thought signature (thought_signature)
 

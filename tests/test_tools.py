@@ -29,9 +29,9 @@ class TestTools(unittest.TestCase):
         clear_member_permissions_handler()
         clear_ask_handler()
 
-    def test_registry_contains_only_rename_server(self):
+    def test_registry_contains_cli_tools(self):
         names = [tool["function"]["name"] for tool in get_tools()]
-        self.assertEqual(names, ["rename_server"])
+        self.assertEqual(names, ["rename_server", "web_search", "web_fetch"])
 
     def test_get_tools_returns_registry(self):
         self.assertEqual(get_tools(), TOOLS)

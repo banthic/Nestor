@@ -2,7 +2,8 @@
     "system_prompt": "",
     "guilds": {
         "1560771764429262850": {
-            "chatbot_channel_id": 1561908832823812149
+            "chatbot_channel_id": 1561908832823812149,
+            "review_channel_id": 1564118395564195970
         }
     }
 }

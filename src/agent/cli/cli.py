@@ -59,7 +59,7 @@ def run_cli() -> None:
         activity: Status | None = None
 
         try:
-            for chunk in gateway.stream_text(user_input, history.get_messages()):
+            for chunk in gateway.stream_text(user_input, history.get_messages()[:-1]):
                 if chunk.type == "status":
                     if activity is None:
                         activity = console.status("Thinking", spinner="dots")

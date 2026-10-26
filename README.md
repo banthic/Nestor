@@ -184,14 +184,18 @@ Type `@` followed by a path fragment to autocomplete files and directories from 
   automatically before every action.
 - `confirm`: ask for confirmation before a sensitive or server-modifying action. It posts
   an embed with **Confirm** and **Cancel** buttons (no selector).
+- `select_options`: multi-select with reaction checkboxes. Lists options with 1️⃣-🔟, reacts
+  with ✅ to confirm or ❌ to cancel, and returns the selected items.
 - `rename_server`: rename the current Discord server. Requires the **Manage Server**
   permission; the action is refused otherwise.
 - `get_member_permissions`: show a member's Discord roles and permissions. Anyone can inspect
   their own; inspecting another member requires **Manage Server**. Mentions, numeric IDs, and
   names are resolved through Discord's API, not only from the local member cache.
-- `ask_user`: ask the user for missing information or choices instead of guessing. It shows a
-  selector when options are provided, or a text input for free-form answers, and waits for the
-  reply. Never use it for permission checks or confirmation.
+- `ask_user`: ask the user for missing information or a single choice instead of guessing. It
+  shows a selector when options are provided (single choice), or a text input for free-form
+  answers. Never use it for permission checks or confirmation.
+- `web_search`: search the web with DuckDuckGo and return titles, URLs, and snippets.
+- `web_fetch`: fetch a URL and return readable text content (truncated).
 
 Every action that declares a required permission is checked before it runs. Tool calls are
 exposed when the request concerns a Discord action. The gateway normalizes streamed tool-call

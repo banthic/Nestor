@@ -3,9 +3,12 @@
 from discord import app_commands
 
 from .config import config_command
+from .config_review import config_review_command, disable_review_monitor_command
 
 COMMANDS = [
     config_command,
+    config_review_command,
+    disable_review_monitor_command,
 ]
 
 

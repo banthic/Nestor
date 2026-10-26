@@ -28,9 +28,13 @@ def build_reply_embed(reply: DiscordReply, chunk_index: int = 0, chunk_count: in
     )
     embed.set_author(name="Nestor")
     if reply.tools_used:
+        tool_lines = [f"• {tool}" for tool in reply.tools_used]
+        tool_text = "\n".join(tool_lines)
+        if len(tool_text) > 1000:
+            tool_text = tool_text[:970].rsplit("\n", 1)[0] + "\n• …"
         embed.add_field(
             name="🔧 Tools",
-            value="\n".join(f"• {tool}" for tool in reply.tools_used),
+            value=tool_text,
             inline=False,
         )
     if chunk_count > 1:

@@ -131,7 +131,16 @@ class TestAgentBridge(unittest.TestCase):
         names = [tool["function"]["name"] for tool in captured["tools"]]
         self.assertEqual(
             names,
-            ["rename_server", "access", "confirm", "get_member_permissions", "ask_user"],
+            [
+                "rename_server",
+                "access",
+                "confirm",
+                "select_options",
+                "get_member_permissions",
+                "ask_user",
+                "web_search",
+                "web_fetch",
+            ],
         )
 
     def test_rename_handler_registered_during_reply(self):
@@ -297,13 +306,14 @@ class TestDiscordSystemPrompt(unittest.TestCase):
         self.assertIn("never list files", DISCORD_SYSTEM_PROMPT)
         self.assertIn("rename_server", DISCORD_SYSTEM_PROMPT)
 
-    def test_addon_uses_access_and_confirm_separately(self):
+    def test_addon_uses_access_confirm_and_select_options(self):
         prompt = DISCORD_SYSTEM_PROMPT.casefold()
         self.assertIn("src/agent/tools/access.py", prompt)
         self.assertIn("require_permission", prompt)
         self.assertIn("permission checks use access", prompt)
         self.assertIn("confirm", prompt)
-        self.assertIn("only confirm and cancel buttons", prompt)
+        self.assertIn("select_options", prompt)
+        self.assertIn("reaction-based checkboxes", prompt)
         self.assertIn("never use ask_user for confirmation", prompt)
         self.assertIn("member's roles", prompt)
 

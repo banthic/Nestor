@@ -1,8 +1,4 @@
-"""Tool that reports the Discord permissions of a guild member.
-
-The lookup itself belongs to the Discord layer: this module only defines the
-schema and delegates to a handler registered while a request is running.
-"""
+"""Tool that reports the Discord permissions of a guild member."""
 
 from collections.abc import Callable
 from contextvars import ContextVar

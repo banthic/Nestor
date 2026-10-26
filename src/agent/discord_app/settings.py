@@ -1,4 +1,4 @@
-"""Persistence of Discord settings (chatbot channel per guild)."""
+"""Persistence of Discord settings per guild."""
 
 import json
 from pathlib import Path
@@ -39,7 +39,33 @@ def set_chatbot_channel_id(guild_id: int, channel_id: int) -> None:
     """Save the chatbot channel id for a guild."""
     config = _load()
     guilds = config.setdefault("guilds", {})
-    guilds[str(guild_id)] = {"chatbot_channel_id": channel_id}
+    guild = guilds.setdefault(str(guild_id), {})
+    guild["chatbot_channel_id"] = channel_id
+    _save(config)
+
+
+def get_review_channel_id(guild_id: int) -> int | None:
+    """Return the staff review channel configured for continuous monitoring."""
+    entry = _load().get("guilds", {}).get(str(guild_id), {})
+    channel_id = entry.get("review_channel_id")
+    return int(channel_id) if channel_id is not None else None
+
+
+def set_review_channel_id(guild_id: int, channel_id: int) -> None:
+    """Enable the behavior review monitor by setting its staff channel."""
+    config = _load()
+    guilds = config.setdefault("guilds", {})
+    guild = guilds.setdefault(str(guild_id), {})
+    guild["review_channel_id"] = channel_id
+    _save(config)
+
+
+def clear_review_channel_id(guild_id: int) -> None:
+    """Disable behavior review monitoring for a guild."""
+    config = _load()
+    guilds = config.setdefault("guilds", {})
+    guild = guilds.setdefault(str(guild_id), {})
+    guild.pop("review_channel_id", None)
     _save(config)
 
 

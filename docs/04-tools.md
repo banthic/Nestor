@@ -58,6 +58,18 @@ The `quit` tool does not return text: it **raises an exception** (`QuitRequested
 
 **Why an exception rather than a simple message?** Because it is a stop order, not an answer. An exception is the right tool to "interrupt the normal flow".
 
+## Discord behavior review
+
+The conversational agent has no tools for moderation or enforcement: it cannot delete messages, time out members, or apply sanctions. A separate background behavior monitor can classify visible guild messages and send likely concerns to a staff-only channel for human review. It never acts on a member or message automatically.
+
+Use `/config_review` to select the staff review channel. This enables continuous AI review of text messages in channels the bot can see; the selected channel must be private to staff and grant Nestor View Channel, Send Messages, and Embed Links. Alerts contain a short explanation, the message excerpt, and a link to the original. The classifier keeps at most six recent messages per active channel in memory; entries older than ten minutes are excluded from classification, and the buffer is cleared when entries are evicted or the bot shuts down. Use `/disable_review_monitor` to stop the review service for a guild. If no review channel is configured, no messages are sent to the classifier.
+
+The monitor uses the configured AI provider for every non-bot text message it can see while enabled. It is intentionally conservative and only asks for human review; it does not make a finding or take an enforcement action.
+
+## When Nestor replies
+
+Nestor answers every message in the configured chatbot channel. In other guild text channels, it answers when a member directly mentions the bot or writes `Nestor` (or the bot's exact Discord username) as a whole word. Those replies are sent as Discord replies to the addressed message.
+
 ---
 
 > [← Previous: The Gateway](03-gateway.md) · [Index](README.md) · [Next: Configuration & tests →](05-configuration-and-tests.md)

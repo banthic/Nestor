@@ -16,6 +16,8 @@ If you are discovering the project, read the files **in order**. If you want the
 | 5 | [Configuration & tests](05-configuration-and-tests.md) | Settings, the secret file, and the checks |
 | 6 | [Key concepts](06-concepts.md) | Provider, streaming, tool call, thinking, history |
 | 7 | [Extending the project](07-extending.md) | How to add/modify, and recap |
+| 8 | [Nestor’s agent loop](08-agent-loop.md) | How tool-driven multi-step work is planned, executed, bounded, and finished |
+| 9 | [Internal runtime logs](09-logging.md) | Structured event logs, request correlation, rotation, and content privacy |
 
 ## 30-second summary
 

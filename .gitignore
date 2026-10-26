@@ -14,3 +14,7 @@ wheels/
 
 #env files
 .env
+
+# Internal runtime logs
+logs/*.jsonl
+logs/*.jsonl.*
